@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+canvas {
+    border: 1px solid #d3d3d3;
+    background-color: #f1f1f1;
+}
+</style>
+</head>
+<body onload="startGame()">
+<script>
+var myGamePiece;
+var enemy;
+var Score=0;
+var myObstacles;
+var myObstacles2;
+function startGame() {
+    myGameArea.start();
+    myGamePiece = new component(30, 30, "red", 260, 520);
+    document.onkeydown = checkKey;
+
+function checkKey(e) {
+
+    e = e || window.event;
+
+    if (e.keyCode == '38' && myGamePiece.gameStopped===false) {
+        myGamePiece.y-=10
+        myGamePiece.update()
+    }
+    else if (e.keyCode == '40' && myGamePiece.gameStopped===false) {
+      myGamePiece.y+=10
+      myGamePiece.update()
+    }
+    else if (e.keyCode == '37' && myGamePiece.gameStopped===false) {
+      myGamePiece.x-=10
+      myGamePiece.update()
+    }
+    else if (e.keyCode == '39' && myGamePiece.gameStopped===false) {
+      myGamePiece.x+=10
+      myGamePiece.update()
+    }
+  }
+}
+var myGameArea = {
+    canvas : document.createElement("canvas"),
+    start : function() {
+        this.canvas.width = 580;
+        this.canvas.height = 570;
+        this.frameNo = 0;
+        this.context = this.canvas.getContext("2d");
+        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.interval = setInterval(updateGameArea, 20);
+    },
+    clear : function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    },
+    stop : function() {
+        clearInterval(this.interval);
+    }
+}
+function component(width, height, color, x, y) {
+    this.width = width;
+    this.height = height;
+    this.x = x;
+    this.y = y;
+    this.gameStopped=false;
+    ctx = myGameArea.context;
+    ctx.fillStyle = color;
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+    this.update = function(){
+        ctx = myGameArea.context;
+        ctx.fillStyle = color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    },
+    this.crashWith = function(otherobj) {
+        var myleft = this.x;
+        var myright = this.x + (this.width);
+        var mytop = this.y;
+        var mybottom = this.y + (this.height);
+        var otherleft = otherobj.x;
+        var otherright = otherobj.x + (otherobj.width);
+        var othertop = otherobj.y;
+        var otherbottom = otherobj.y + (otherobj.height);
+        var crash = true;
+        if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
+            crash = false;
+        }
+        return crash;
+    };
+
+}
+function everyinterval(n) {
+    if ((myGameArea.frameNo / n) % 1 == 0) {return true;}
+    return false;
+}
+function updateGameArea() {
+    myGameArea.clear();
+    myGamePiece.update();
+    if(enemy===undefined){
+      var min = 50;
+      var max = 530;
+// and the formula is:
+      var random = Math.floor(Math.random() * (max - min + 1)) + min;
+      enemy=new component(30, 30, "yellow", random, 30);
+    }
+    else{
+      if (myGamePiece.crashWith(enemy)) {
+          myGamePiece.gameStopped=true;
+          myGameArea.stop();
+
+        }
+      else{
+      enemy.y+=5;
+      enemy.update();
+      Score+=5;
+      var span = document.getElementById("scoreDetails");
+      span.textContent = 'Score: '+Score;
+
+
+      }
+    }
+
+    if(enemy.y>=540){
+      enemy=undefined
+    }
+    if(myGameArea.frameNo==1 || everyinterval(150)){
+      var min = 50;
+      var max = 530;
+      var gap=100;
+      var random = Math.floor(Math.random() * (150 - 450 + 1)) + 350;
+      myObstacles=new component(random, 70, "black", 0, 30);
+      var x=myGameArea.canvas.width-(myObstacles.width+gap);
+      alert(x);
+      myObstacles2=new component(x, 70, "black", myObstacles.width+gap, 20);
+
+    }
+  if(myObstacles!=undefined && myObstacles!=undefined ){
+    myObstacles.y +=1;
+    myObstacles.update();
+    myObstacles2.y +=1;
+    myObstacles2.update();
+  }
+   myGameArea.frameNo+=1
+
+}
+
+
+</script>
+
+</p><span id="scoreDetails">12</span>
+
+</body>
+</html>
