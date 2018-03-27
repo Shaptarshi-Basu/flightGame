@@ -16,10 +16,25 @@ var enemy;
 var Score=0;
 var myObstacles=[];
 var myObstacles2;
+var fire=[];
+var myScore;
+//Function to get the mouse position
+function getMousePos(canvas, event) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+    };
+}
+//Function to check whether a point is inside a rectangle
+function isInside(pos, rect){
+    return pos.x > rect.x && pos.x < rect.x+rect.width && pos.y < rect.y+rect.height && pos.y > rect.y
+}
 function startGame() {
     myGameArea.start();
     myBackground = new component(656, 600, "topview2.jpg", 0, 0, "image");
     myGamePiece = new component(30, 30, "plane.png", 260, 520,"image");
+    myScore = new component("20px", "Consolas", "black", 450, 40, "text");
     myMusic = new sound("TULE - Lost.mp3");
     explosion = new sound("explosion.mp3");
     myMusic.play();
@@ -32,6 +47,9 @@ function checkKey(e) {
     if (e.keyCode == '38' && myGamePiece.gameStopped===false) {
         myGamePiece.y-=15
         myGamePiece.update()
+    }
+    else if (e.keyCode == '32' && myGamePiece.gameStopped===false) {
+      fire.push(new component(13, 13, "fire.png",myGamePiece.x+3,myGamePiece.y-3, "image"));
     }
     else if (e.keyCode == '40' && myGamePiece.gameStopped===false) {
       myGamePiece.y+=15
@@ -74,6 +92,11 @@ function component(width, height, color, x, y, type) {
         this.image = new Image();
         this.image.src = color;
     }
+    else if (type == "text") {
+        ctx.font = this.width + " " + this.height;
+        ctx.fillStyle = color;
+        ctx.fillText(this.text, this.x, this.y);
+    }
     ctx = myGameArea.context;
     ctx.fillStyle = color;
     ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -84,6 +107,11 @@ function component(width, height, color, x, y, type) {
                 this.x,
                 this.y,
                 this.width, this.height);
+        }
+        else if (type == "text") {
+            ctx.font = this.width + " " + this.height;
+            ctx.fillStyle = color;
+            ctx.fillText(this.text, this.x, this.y);
         }
         else{
         ctx.fillStyle = color;
@@ -129,6 +157,9 @@ function updateGameArea() {
     myGameArea.clear();
     myBackground.update();
     myGamePiece.update();
+    Score+=5
+    myScore.text="SCORE: " + Score;;
+    myScore.update();
     if(enemy===undefined){
       var min = 50;
       var max = 530;
@@ -154,17 +185,30 @@ function updateGameArea() {
               explosion.play();
             }
         }
+
+        for (i = 0; i < fire.length; i += 1) {
+            fire[i].y-=2
+            fire[i].update();
+        }
       enemy.y+=5;
       enemy.update();
       Score+=5;
       var span = document.getElementById("scoreDetails");
       span.textContent = 'Score: '+Score;
 
+      for (i = 0; i < fire.length; i += 1) {
+          if(enemy.crashWith(fire[i])){
+            explosion.play();
+            fire.splice(i,1);
+            enemy=undefined;
+            break;
+          }
+      }
 
       }
     }
 
-    if(enemy.y>=540){
+    if(enemy!=undefined && enemy.y>=540){
       enemy=undefined
     }
     if(everyinterval(150)){
@@ -172,9 +216,9 @@ function updateGameArea() {
       var max = 530;
       var gap=100;
       var random = Math.floor(Math.random() * (150 - 450 + 1)) + 350;
-      myObstacles.push(new component(random, 70, "black", 0, 30));
+      myObstacles.push(new component(random-10, 70, "cloud.png", 0, 30, "image"));
       var x=myGameArea.canvas.width-(myObstacles[myObstacles.length-1].width+gap);
-      myObstacles.push(new component(random+gap, 70, "black",random+gap, 20));
+      myObstacles.push(new component(random+gap-10, 70, "cloud.png",random+gap, 20, "image"));
 
     }
   if(myObstacles!=undefined && myObstacles!=undefined ){
@@ -191,7 +235,7 @@ function updateGameArea() {
 
 </script>
 
-<span id="scoreDetails"></span> <input type="button" value="Restart Game" onClick="window.location.reload()">
+ <input type="button" value="Restart Game" onClick="window.location.reload()">
 
 </body>
 </html>
