@@ -7,9 +7,85 @@ canvas {
     border: 1px solid #d3d3d3;
     background-color: #f1f1f1;
 }
+.button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.button1 {
+    background-color: white;
+    color: black;
+    border: 2px solid #4CAF50;
+    border-radius: 12px;
+}
+
+.button1:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.button2 {
+    background-color: white;
+    color: black;
+    border: 2px solid #008CBA;
+    border-radius: 12px;
+}
+
+.button2:hover {
+    background-color: #008CBA;
+    color: white;
+}
+
+.button3 {
+    background-color: white;
+    color: black;
+    border: 2px solid #f44336;
+    border-radius: 12px;
+}
+
+.button3:hover {
+    background-color: #f44336;
+    color: white;
+}
+
+.button4 {
+    background-color: white;
+    color: black;
+    border: 2px solid #e7e7e7;
+    border-radius: 12px;
+}
+
+.button4:hover {background-color: #e7e7e7;
+}
+
+.button5 {
+    background-color: white;
+    color: black;
+    border: 2px solid #555555;
+    border-radius: 12px;
+}
+
+.button5:hover {
+    background-color: #555555;
+    color: white;
+}
 </style>
 </head>
 <body onload="startGame()">
+  <div class="w3-container w3-green">
+      <h3>Game Rules</h3>
+      <p>Use space bar to fire and direction keys to move.. Stay safe from the enemy ships and the dark clouds!! Enjoy</p>
+    </div>
 <script>
 var myGamePiece;
 var enemy;
@@ -18,9 +94,16 @@ var myObstacles=[];
 var myObstacles2;
 var fire=[];
 var myScore;
+var gameOver;
+var gameIntro;
+var speedEnemy=5;
+function intro(){
+
+}
 function startGame() {
     myGameArea.start();
     myBackground = new component(656, 600, "topview2.jpg", 0, 0, "image");
+    gameOver=new component("50px", "Consolas", "white", 200, 250, "text");
     myGamePiece = new component(30, 30, "plane.png", 260, 520,"image");
     myScore = new component("20px", "Consolas", "black", 450, 40, "text");
     myMusic = new sound("TULE - Lost.mp3");
@@ -53,6 +136,7 @@ function checkKey(e) {
     }
   }
 }
+
 var myGameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
@@ -146,7 +230,7 @@ function updateGameArea() {
     myBackground.update();
     myGamePiece.update();
     Score+=5
-    myScore.text="SCORE: " + Score;;
+    myScore.text="SCORE: " + Score;
     myScore.update();
     if(enemy===undefined){
       var min = 50;
@@ -159,6 +243,8 @@ function updateGameArea() {
       if (myGamePiece.crashWith(enemy)) {
           myGamePiece.gameStopped=true;
           myGameArea.stop();
+          gameOver.text="Game Over!!"
+          gameOver.update();
           myMusic.stop();
           explosion.play();
 
@@ -169,6 +255,8 @@ function updateGameArea() {
             if(myGamePiece.crashWith(myObstacles[i])){
               myGamePiece.gameStopped=true;
               myGameArea.stop();
+              gameOver.text="Game Over!!"
+              gameOver.update();
               myMusic.stop();
               explosion.play();
             }
@@ -178,12 +266,9 @@ function updateGameArea() {
             fire[i].y-=2
             fire[i].update();
         }
-      enemy.y+=5;
+      enemy.y+=speedEnemy;
       enemy.update();
       Score+=5;
-      var span = document.getElementById("scoreDetails");
-      span.textContent = 'Score: '+Score;
-
       for (i = 0; i < fire.length; i += 1) {
           if(enemy.crashWith(fire[i])){
             explosion.play();
@@ -222,8 +307,8 @@ function updateGameArea() {
 
 
 </script>
-
-<span id="scoreDetails"></span> <input type="button" value="Restart Game" onClick="window.location.reload()">
+</br>
+<input type="button" class="button button1"  value="Restart Game" onClick="window.location.reload()">&nbsp;<input type="button" class="button button2"  value="Submit Score" onClick="window.location.reload()">&nbsp;<input type="button" class="button button5"  value="Save" onClick="window.location.reload()">
 
 </body>
 </html>
